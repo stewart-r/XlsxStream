@@ -28,6 +28,22 @@ namespace XlsxStream.Tests
         }
 
         [Test]
+        public void Can_Write_XlRelsFile()
+        {
+            using (var fs = File.Create(tmpFileName))
+            using (var sut = new XlsxStream(fs))
+            {
+                sut.Finalise();
+            }
+
+            using (var za = ZipFile.OpenRead(tmpFileName))
+            {
+                var ctEntry = za.GetEntry(@"xl\_rels\workbook.xml.rels");
+                Assert.IsNotNull(ctEntry);
+            }
+        }
+
+        [Test]
         public void Can_Write_RelsFile()
         {
             using (var fs = File.Create(tmpFileName))
@@ -42,6 +58,7 @@ namespace XlsxStream.Tests
                 Assert.IsNotNull(ctEntry);
             }
         }
+
 
         [Test]
         public void Can_Write_ContentTypesFile()

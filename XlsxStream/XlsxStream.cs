@@ -28,19 +28,20 @@ namespace XlsxStream
 
         public void Finalise()
         {
-            WriteRelsFile();
+            WriteRelsFile(@"_rels\.rels",settings.Relationships);
+            WriteRelsFile(@"xl\_rels\workbook.xml.rels", settings.Relationships);
             WriteContentTypesFile();
         }
 
-        private void WriteRelsFile()
+        private void WriteRelsFile(string path, IEnumerable<Relationship> relationships)
         {
-            var entry = xlsxArchive.CreateEntry(@"_rels\.rels");
+            var entry = xlsxArchive.CreateEntry(path);
             using (var ctEntryStrm = entry.Open())
             using (var xmlWriter = XmlWriter.Create(ctEntryStrm))
             {
                 xmlWriter.WriteStartDocument(true);
                 xmlWriter.WriteStartElement("Relationships", "http://schemas.openxmlformats.org/package/2006/relationships");
-                foreach (var rel in settings.Relationships)
+                foreach (var rel in relationships)
                 {
                     xmlWriter.WriteEmptyElementWithTheseAttributes("Default", rel.ToAttributeKvps());
                 }
