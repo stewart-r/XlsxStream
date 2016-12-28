@@ -28,12 +28,28 @@ namespace XlsxStream.Tests
         }
 
         [Test]
+        public void Can_Write_RelsFile()
+        {
+            using (var fs = File.Create(tmpFileName))
+            using (var sut = new XlsxStream(fs))
+            {
+                sut.Finalise();
+            }
+
+            using (var za = ZipFile.OpenRead(tmpFileName))
+            {
+                var ctEntry = za.GetEntry(@"_rels\.rels");
+                Assert.IsNotNull(ctEntry);
+            }
+        }
+
+        [Test]
         public void Can_Write_ContentTypesFile()
         {
             using (var fs = File.Create(tmpFileName))
             using (var sut = new XlsxStream(fs))
             {
-                sut.WriteContentTypes();
+                sut.Finalise();
             }
 
             using (var za = ZipFile.OpenRead(tmpFileName))
@@ -56,7 +72,7 @@ namespace XlsxStream.Tests
             using (var fs = File.Create(tmpFileName))
             using (var sut = new XlsxStream(fs, settings))
             {
-                sut.WriteContentTypes();
+                sut.Finalise();
             }
             XElement fileXml;
             fileXml = GetXmlFromZipArchive("[Content_Types].xml");
@@ -85,7 +101,7 @@ namespace XlsxStream.Tests
             using (var fs = File.Create(tmpFileName))
             using (var sut = new XlsxStream(fs, settings))
             {
-                sut.WriteContentTypes();
+                sut.Finalise();
             }
             XElement fileXml;
             fileXml = GetXmlFromZipArchive("[Content_Types].xml");

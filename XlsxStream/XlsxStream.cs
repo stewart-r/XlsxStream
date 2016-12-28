@@ -26,7 +26,30 @@ namespace XlsxStream
             this.settings = settings;
         }
 
-        public void WriteContentTypes()
+        public void Finalise()
+        {
+            WriteRelsFile();
+            WriteContentTypesFile();
+        }
+
+        private void WriteRelsFile()
+        {
+            var entry = xlsxArchive.CreateEntry(@"_rels\.rels");
+            using (var ctEntryStrm = entry.Open())
+            using (var xmlWriter = XmlWriter.Create(ctEntryStrm))
+            {
+                xmlWriter.WriteStartDocument(true);
+                xmlWriter.WriteStartElement("Relationships", "http://schemas.openxmlformats.org/package/2006/relationships");
+                foreach (var rel in settings.Relationships)
+                {
+                    xmlWriter.WriteEmptyElementWithTheseAttributes("Default", rel.ToAttributeKvps());
+                }
+                
+                xmlWriter.WriteEndElement();
+            }
+        }
+
+        private void WriteContentTypesFile()
         {
             var entry = xlsxArchive.CreateEntry("[Content_Types].xml");
             using (var ctEntryStrm = entry.Open())

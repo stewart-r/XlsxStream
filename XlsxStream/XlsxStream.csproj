@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="ContentTypeDefault.cs" />
     <Compile Include="ContentTypeOverride.cs" />
+    <Compile Include="Relationship.cs" />
     <Compile Include="SingleAttributeSettingsElement.cs" />
     <Compile Include="XlsxGenerationSettings.cs" />
     <Compile Include="XlsxStream.cs" />
