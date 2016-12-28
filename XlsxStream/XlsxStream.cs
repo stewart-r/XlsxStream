@@ -29,7 +29,7 @@ namespace XlsxStream
         public void Finalise()
         {
             WriteRelsFile(@"_rels\.rels",settings.Relationships);
-            WriteRelsFile(@"xl\_rels\workbook.xml.rels", settings.Relationships);
+            WriteRelsFile(@"xl\_rels\workbook.xml.rels",);
             WriteContentTypesFile();
         }
 
