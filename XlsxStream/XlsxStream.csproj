@@ -41,6 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ContentTypeDefault.cs" />
+    <Compile Include="ContentTypeOverride.cs" />
+    <Compile Include="SingleAttributeSettingsElement.cs" />
+    <Compile Include="XlsxGenerationSettings.cs" />
     <Compile Include="XlsxStream.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -9,13 +9,21 @@ using System.Xml;
 
 namespace XlsxStream
 {
-    public class XlsxStream
+    public class XlsxStream:IDisposable
     {
         ZipArchive xlsxArchive;
+        XlsxGenerationSettings settings;
         
         public XlsxStream(Stream outputStream)
         {
-            xlsxArchive = new ZipArchive(outputStream);    
+            xlsxArchive = new ZipArchive(outputStream, ZipArchiveMode.Create);
+            settings = new XlsxGenerationSettings();    
+        }
+
+        public XlsxStream(Stream outputStream, XlsxGenerationSettings settings)
+        {
+            xlsxArchive = new ZipArchive(outputStream, ZipArchiveMode.Create);
+            this.settings = settings;
         }
 
         public void WriteContentTypes()
@@ -25,43 +33,35 @@ namespace XlsxStream
             using (var xmlWriter = XmlWriter.Create(ctEntryStrm))
             {
                 xmlWriter.WriteStartDocument(true);
-                xmlWriter.WriteStartElement("")
+                xmlWriter.WriteStartElement("Types", "http://schemas.openxmlformats.org/package/2006/content-types");
+                foreach (var ctDefault in settings.ContentTypeDefaults)
+                {
+                    xmlWriter.WriteEmptyElementWithTheseAttributes("Default", ctDefault.ToAttributeKvps());
+                }
+                foreach (var ovrrd in settings.ContentTypeOverrides)
+                {
+                    xmlWriter.WriteEmptyElementWithTheseAttributes("Override", ovrrd.ToAttributeKvps());
+                }
+                xmlWriter.WriteEndElement();
             }
         }
 
-        //public override bool CanRead => false;
+        public void Dispose()
+        {
+            xlsxArchive.Dispose();   
+        }
+    }
 
-        //public override bool CanSeek => false;
-
-        //public override bool CanWrite => true;
-
-        //public override long Length => length;
-
-        //public override long Position { get; set; }
-
-        //public override void Flush()
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override int Read(byte[] buffer, int offset, int count)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override long Seek(long offset, SeekOrigin origin)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override void SetLength(long value)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override void Write(byte[] buffer, int offset, int count)
-        //{
-        //    throw new NotImplementedException();
-        //}
+    public static class Extn
+    {
+        public static void WriteEmptyElementWithTheseAttributes(this XmlWriter xmlWriter, string localName, IEnumerable<KeyValuePair<string,string>> attrs)
+        {
+            xmlWriter.WriteStartElement(localName);
+            foreach (var attr in attrs)
+            {
+                xmlWriter.WriteAttributeString(attr.Key, attr.Value);
+            }
+            xmlWriter.WriteEndElement();
+        }
     }
 }
