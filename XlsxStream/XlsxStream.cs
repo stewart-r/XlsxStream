@@ -13,6 +13,8 @@ namespace XlsxStream
     {
         ZipArchive xlsxArchive;
         XlsxGenerationSettings settings;
+        List<string> sheetNames = new List<string>();
+
         
         public XlsxStream(Stream outputStream)
         {
@@ -29,8 +31,15 @@ namespace XlsxStream
         public void Finalise()
         {
             WriteRelsFile(@"_rels\.rels",settings.Relationships);
-            WriteRelsFile(@"xl\_rels\workbook.xml.rels",);
+            WriteRelsFile(@"xl\_rels\workbook.xml.rels",settings.XlRelationships);
             WriteContentTypesFile();
+        }
+
+        public Worksheet AddWorksheet(string sheetName)
+        {
+            sheetNames.Add(sheetName);
+            var entry = xlsxArchive.CreateEntry($@"xl\worksheets\{sheetName}.xml");
+            return new Worksheet(entry);
         }
 
         private void WriteRelsFile(string path, IEnumerable<Relationship> relationships)

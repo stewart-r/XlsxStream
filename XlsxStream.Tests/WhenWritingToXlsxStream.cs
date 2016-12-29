@@ -28,6 +28,26 @@ namespace XlsxStream.Tests
         }
 
         [Test]
+        public void Can_Write_Worksheet()
+        {
+            using (var fs = File.Create(tmpFileName))
+            using (var sut = new XlsxStream(fs))
+            {
+                using (var mysheet = sut.AddWorksheet("mysheet"))
+                {
+                    
+                }
+                sut.Finalise();
+            }
+
+            using (var za = ZipFile.OpenRead(tmpFileName))
+            {
+                var wsEntry = za.GetEntry(@"xl\worksheets\mysheet.xml");
+                Assert.IsNotNull(wsEntry);
+            }
+        }
+
+        [Test]
         public void Can_Write_XlRelsFile()
         {
             using (var fs = File.Create(tmpFileName))

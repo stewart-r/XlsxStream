@@ -56,5 +56,10 @@ namespace XlsxStream
                 Type = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"
             }
         };
+
+        public List<Relationship> XlRelationships { get; set; } = new List<Relationship>
+        {
+
+        };
     }
 }
