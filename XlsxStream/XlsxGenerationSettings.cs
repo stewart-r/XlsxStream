@@ -47,11 +47,10 @@ namespace XlsxStream
                 ContentType = "application/vnd.openxmlformats-officedocument.extended-properties+xml"
             }
         };
-        public List<Relationship> Relationships { get; set; } = new List<Relationship>
+        public List<Relationship> BaseRelationships { get; set; } = new List<Relationship>
         {
             new Relationship
             {
-                Id = "rId1",
                 Target = @"xl/workbook.xml",
                 Type = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"
             }

@@ -46,6 +46,7 @@
     <Compile Include="Relationship.cs" />
     <Compile Include="SingleAttributeSettingsElement.cs" />
     <Compile Include="Worksheet.cs" />
+    <Compile Include="WorksheetSettings.cs" />
     <Compile Include="XlsxGenerationSettings.cs" />
     <Compile Include="XlsxStream.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

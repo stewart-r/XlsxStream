@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Xml;
@@ -10,11 +11,13 @@ namespace XlsxStream
         Stream wsEntryStream;
         XmlWriter xmlWriter;
         bool isInitialised;
+        WorksheetSettings settings;
 
-        public Worksheet(ZipArchiveEntry entry)
+        public Worksheet(ZipArchiveEntry entry, WorksheetSettings settings)
         {
             wsEntryStream = entry.Open();
             xmlWriter = XmlWriter.Create(wsEntryStream);
+            this.settings = settings;
             isInitialised = false;
         }
 
@@ -24,7 +27,8 @@ namespace XlsxStream
             {
                 xmlWriter.WriteStartDocument();
                 xmlWriter.WriteStartElement("Worksheet", "http://schemas.openxmlformats.org/spreadsheetml/2006/main");
-                throw new NotImplementedException(); //wip - TODO
+                xmlWriter.WriteEmptyElementWithTheseAttributes("sheetFormatPr", new Dictionary<string, string> { { "defaultRowHeight", $"{settings.DefaultRowHeight}" } });
+                xmlWriter.WriteStartElement("sheetData");
                 
             }
         }
@@ -32,13 +36,14 @@ namespace XlsxStream
         public void Dispose()
         {
             Finalise();
-            wsEntryStream.Dispose();
             xmlWriter.Dispose();
+            wsEntryStream.Dispose();
         }
 
         private void Finalise()
         {
-            //add dimension element
+            xmlWriter.WriteEndElement();
+            //add dimension element ??
         }
     }
 }

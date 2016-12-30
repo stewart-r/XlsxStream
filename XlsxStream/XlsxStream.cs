@@ -30,16 +30,61 @@ namespace XlsxStream
 
         public void Finalise()
         {
-            WriteRelsFile(@"_rels\.rels",settings.Relationships);
-            WriteRelsFile(@"xl\_rels\workbook.xml.rels",settings.XlRelationships);
+            WriteRelsFile(@"_rels\.rels",settings.BaseRelationships);
+            WriteWorkbookFile();
+            WriteRelsFile(@"xl\_rels\workbook.xml.rels", sheetNames.Select(ToWorksheetRelationship).Concat( settings.XlRelationships));
             WriteContentTypesFile();
+        }
+
+        private Relationship ToWorksheetRelationship(string wsName)
+        {
+            return new Relationship
+            {
+                Target = $@"worksheets\sheet{sheetNames.IndexOf(wsName)}.xml",
+                Type = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"
+            };
+        }
+
+        private void WriteWorkbookFile()
+        {
+            var entry = xlsxArchive.CreateEntry(@"xl\workbook.xml");
+            using (var ctEntryStrm = entry.Open())
+            using (var xmlWriter = XmlWriter.Create(ctEntryStrm))
+            {
+                xmlWriter.WriteStartDocument(true);
+                xmlWriter.WriteStartElement("Workbook", "http://schemas.openxmlformats.org/package/2006/content-types");
+                xmlWriter.WriteAttributeString("xmlns", "r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
+                xmlWriter.WriteStartElement("bookViews");
+                xmlWriter.WriteStartElement("workbookView");
+                xmlWriter.WriteEndElement();
+                xmlWriter.WriteEndElement();
+                xmlWriter.WriteStartElement("sheets");
+                for (var sheetId = 1; sheetId <= sheetNames.Count; sheetId++)
+                {
+                    xmlWriter.WriteStartElement("sheet");
+                    xmlWriter.WriteAttributeString("name", sheetNames[sheetId]);
+                    xmlWriter.WriteAttributeString("sheetId", sheetId.ToString());
+                    xmlWriter.WriteAttributeString("id", "r", $"rId{sheetId}");
+                    xmlWriter.WriteEndElement();
+                }
+                xmlWriter.WriteEndElement();
+                
+                xmlWriter.WriteEndElement();
+            }
         }
 
         public Worksheet AddWorksheet(string sheetName)
         {
+            return AddWorksheet(sheetName, WorksheetSettings.Default);
+        }
+
+        public Worksheet AddWorksheet(string sheetName, WorksheetSettings worksheetSettings)
+        {
             sheetNames.Add(sheetName);
-            var entry = xlsxArchive.CreateEntry($@"xl\worksheets\{sheetName}.xml");
-            return new Worksheet(entry);
+            var entry = xlsxArchive.CreateEntry($@"xl\worksheets\sheet{sheetNames.Count}.xml");
+            var ret = new Worksheet(entry, worksheetSettings);
+            ret.Initialise();
+            return ret;
         }
 
         private void WriteRelsFile(string path, IEnumerable<Relationship> relationships)

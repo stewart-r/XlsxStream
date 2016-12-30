@@ -28,7 +28,27 @@ namespace XlsxStream.Tests
         }
 
         [Test]
-        public void Can_Write_Worksheet()
+        public void Can_Write_WorkbookXmlFile()
+        {
+            using (var fs = File.Create(tmpFileName))
+            using (var sut = new XlsxStream(fs))
+            {
+                using (var mysheet = sut.AddWorksheet("mysheet"))
+                {
+
+                }
+                sut.Finalise();
+            }
+
+            using (var za = ZipFile.OpenRead(tmpFileName))
+            {
+                var wbEntry = za.GetEntry(@"xl\workbook.xml");
+                Assert.IsNotNull(wbEntry);
+            }
+        }
+
+        [Test]
+        public void Can_Write_WorksheetXmlFile()
         {
             using (var fs = File.Create(tmpFileName))
             using (var sut = new XlsxStream(fs))
@@ -42,7 +62,7 @@ namespace XlsxStream.Tests
 
             using (var za = ZipFile.OpenRead(tmpFileName))
             {
-                var wsEntry = za.GetEntry(@"xl\worksheets\mysheet.xml");
+                var wsEntry = za.GetEntry(@"xl\worksheets\sheet1.xml");
                 Assert.IsNotNull(wsEntry);
             }
         }
