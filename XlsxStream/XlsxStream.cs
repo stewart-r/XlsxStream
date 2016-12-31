@@ -40,7 +40,7 @@ namespace XlsxStream
         {
             return new Relationship
             {
-                Target = $@"worksheets\sheet{sheetNames.IndexOf(wsName)}.xml",
+                Target = $@"worksheets/sheet{sheetNames.IndexOf(wsName) + 1}.xml",
                 Type = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"
             };
         }
@@ -52,8 +52,8 @@ namespace XlsxStream
             using (var xmlWriter = XmlWriter.Create(ctEntryStrm))
             {
                 xmlWriter.WriteStartDocument(true);
-                xmlWriter.WriteStartElement("Workbook", "http://schemas.openxmlformats.org/package/2006/content-types");
-                xmlWriter.WriteAttributeString("xmlns", "r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
+                xmlWriter.WriteStartElement("workbook", "http://schemas.openxmlformats.org/package/2006/content-types");
+                xmlWriter.WriteAttributeString("xmlns", "r", null, "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
                 xmlWriter.WriteStartElement("bookViews");
                 xmlWriter.WriteStartElement("workbookView");
                 xmlWriter.WriteEndElement();
@@ -62,9 +62,9 @@ namespace XlsxStream
                 for (var sheetId = 1; sheetId <= sheetNames.Count; sheetId++)
                 {
                     xmlWriter.WriteStartElement("sheet");
-                    xmlWriter.WriteAttributeString("name", sheetNames[sheetId]);
+                    xmlWriter.WriteAttributeString("name", sheetNames[sheetId - 1]);
                     xmlWriter.WriteAttributeString("sheetId", sheetId.ToString());
-                    xmlWriter.WriteAttributeString("id", "r", $"rId{sheetId}");
+                    xmlWriter.WriteAttributeString("id", "http://schemas.openxmlformats.org/officeDocument/2006/relationships", $"rId{sheetId}");
                     xmlWriter.WriteEndElement();
                 }
                 xmlWriter.WriteEndElement();
