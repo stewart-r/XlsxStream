@@ -95,9 +95,15 @@ namespace XlsxStream
             {
                 xmlWriter.WriteStartDocument(true);
                 xmlWriter.WriteStartElement("Relationships", "http://schemas.openxmlformats.org/package/2006/relationships");
+                var id = 1;
                 foreach (var rel in relationships)
                 {
-                    xmlWriter.WriteEmptyElementWithTheseAttributes("Default", rel.ToAttributeKvps());
+                    var idAttr = new Dictionary<string, string>
+                    {
+                        { "Id", $"rId{id}" }
+                    };
+                    xmlWriter.WriteEmptyElementWithTheseAttributes("Relationship", rel.ToAttributeKvps().Concat(idAttr));
+                    id++;
                 }
                 
                 xmlWriter.WriteEndElement();
@@ -119,6 +125,15 @@ namespace XlsxStream
                 foreach (var ovrrd in settings.ContentTypeOverrides)
                 {
                     xmlWriter.WriteEmptyElementWithTheseAttributes("Override", ovrrd.ToAttributeKvps());
+                }
+                for (var i = 1; i <= sheetNames.Count; i++)
+                {
+                    var sheetOvrrd = new ContentTypeOverride
+                    {
+                        ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml",
+                        PartName = $@"/xl/worksheets/sheet{i}.xml"
+                    };
+                    xmlWriter.WriteEmptyElementWithTheseAttributes("Override", sheetOvrrd.ToAttributeKvps());
                 }
                 xmlWriter.WriteEndElement();
             }

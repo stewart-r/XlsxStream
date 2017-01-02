@@ -27,6 +27,72 @@ namespace XlsxStream.Tests
             if (File.Exists(tmpFileName)) File.Delete(tmpFileName);
         }
 
+        
+
+        [Test]
+        public void ContentTypes_Entry_Contains_Ovrrd_for_sheet()
+        {
+            using (var fs = File.Create(tmpFileName))
+            using (var sut = new XlsxStream(fs))
+            {
+                using (var mysheet = sut.AddWorksheet("mysheet"))
+                {
+
+                }
+                sut.Finalise();
+            }
+
+            using (var za = ZipFile.OpenRead(tmpFileName))
+            {
+                var xml = GetXmlFromZipArchive(@"[Content_Types].xml");
+                var sheetTypeStr = "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml";
+                var ovvrd = xml.Descendants().Where(d => d.Name.LocalName == "Override" && d.Attributes().Any(a=> a.Value == sheetTypeStr)).FirstOrDefault();
+                Assert.IsNotNull(ovvrd);
+            }
+        }
+
+        [Test]
+        public void Each_RelationshipNode_Contains_Id_Attr()
+        {
+            using (var fs = File.Create(tmpFileName))
+            using (var sut = new XlsxStream(fs))
+            {
+                using (var mysheet = sut.AddWorksheet("mysheet"))
+                {
+
+                }
+                sut.Finalise();
+            }
+
+            using (var za = ZipFile.OpenRead(tmpFileName))
+            {
+                var xml = GetXmlFromZipArchive(@"_rels\.rels");
+                var relationships = xml.Descendants().Where(d => d.Name.LocalName == "Relationship");
+                Assert.IsTrue(relationships.All(r => r.Attributes().Any(a=>a.Name.LocalName == "Id")));
+            }
+        }
+
+        [Test]
+        public void Rels_File_Contains_RelationshipNode()
+        {
+            using (var fs = File.Create(tmpFileName))
+            using (var sut = new XlsxStream(fs))
+            {
+                using (var mysheet = sut.AddWorksheet("mysheet"))
+                {
+
+                }
+                sut.Finalise();
+            }
+
+            using (var za = ZipFile.OpenRead(tmpFileName))
+            {
+                var xml = GetXmlFromZipArchive(@"_rels\.rels");
+                var relationships = xml.Descendants().Where(d => d.Name.LocalName == "Relationship");
+                Assert.IsTrue(relationships.Count() > 0);
+            }
+        }
+
         [Test]
         public void Can_Write_WorkbookXmlFile()
         {
